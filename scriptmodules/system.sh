@@ -58,6 +58,9 @@ function setup_env() {
     if [[ -z "$__nodialog" ]]; then
         __nodialog=0
     fi
+
+    __ccache_enable="$scriptdir/.ccache_enable"
+    [[ -f "$__ccache_enable" ]] && export PATH="/usr/lib/ccache:$PATH"
 }
 
 function get_os_version() {
