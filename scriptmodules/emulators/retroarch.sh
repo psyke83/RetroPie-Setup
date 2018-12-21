@@ -99,6 +99,11 @@ function update_assets_retroarch() {
 
 function install_xmb_monochrome_assets_retroarch() {
     local dir="$configdir/all/retroarch/assets"
+
+    if [[ "$__chroot" -eq 1 ]]; then
+         _package_xmb_monochrome_assets_retroarch
+    fi
+
     [[ -d "$dir/.git" ]] && return
     [[ ! -d "$dir" ]] && mkUserDir "$dir"
     downloadAndExtract "$__archive_url/retroarch-xmb-monochrome.tar.gz" "$dir"
