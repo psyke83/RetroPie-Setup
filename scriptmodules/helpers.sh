@@ -246,6 +246,16 @@ function getDepends() {
                 packages+=("$required")
                 continue
             fi
+
+            # SDL1.2 / SDL2.0 KMSDRM workaround
+            if [[ "$required" == "libsdl1.2-dev" ]]; then
+                if (hasFlag "${__mod_flags[$md_idx]}" "sdl1" \
+                  && (isPlatform "kms" || isPlatform "mali")) \
+                  || (hasFlag "${__mod_flags[$md_idx]}" "sdl2" \
+                  && isPlatform "kms"); then
+                    packages+=("xorg" "matchbox-window-manager")
+               fi
+            fi
         fi
 
         if [[ "$md_mode" == "remove" ]]; then
@@ -1268,6 +1278,14 @@ function addEmulator() {
     # automatically add parameters for libretro modules
     if [[ "$id" == lr-* && "$cmd" =~ ^"$md_inst"[^[:space:]]*\.so ]]; then
         cmd="$emudir/retroarch/bin/retroarch -L $cmd --config $md_conf_root/$system/retroarch.cfg %ROM%"
+    fi
+
+    # force SDL applications to run in Xorg context
+    if (hasFlag "${__mod_flags[$md_idx]}" "sdl1" \
+      && (isPlatform "kms" || isPlatform "mali")) \
+      || (hasFlag "${__mod_flags[$md_idx]}" "sdl2" \
+      && isPlatform "kms"); then
+        cmd="XINIT:$cmd"
     fi
 
     # create a config folder for the system / port

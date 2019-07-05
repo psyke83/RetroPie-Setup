@@ -931,6 +931,7 @@ _EOF_
             # echo command line for runcommand log
             cat >>"$xinitrc" <<_EOF_
 echo -e "\nExecuting (via xinit): "${COMMAND//\$/\\\$}"\n"
+matchbox-window-manager -use_titlebar no &
 ${COMMAND//\$/\\\$}
 _EOF_
             chmod +x "$xinitrc"
