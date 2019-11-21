@@ -1,0 +1,40 @@
+diff --git a/src/common/gfx/gfxSDL.cpp b/src/common/gfx/gfxSDL.cpp
+index 6f9aeed..3c8560c 100644
+--- a/src/common/gfx/gfxSDL.cpp
++++ b/src/common/gfx/gfxSDL.cpp
+@@ -55,9 +55,6 @@ void GraphicsSDL::init_sdl()
+         throw E_INIT_SDL;
+     }
+ 
+-    // Clean up on exit
+-    atexit(SDL_Quit);
+-
+     print_sdl_version();
+ }
+ 
+@@ -70,7 +67,6 @@ void GraphicsSDL::init_sdl_img()
+         throw E_INIT_SDL_IMG;
+     }
+ 
+-    atexit(IMG_Quit);
+     print_sdl_img_version();
+ }
+ 
+@@ -236,6 +232,8 @@ void GraphicsSDL::Close()
+     SDL_FreeSurface(screen);
+     SDL_DestroyRenderer(sdl2_renderer);
+     SDL_DestroyWindow(sdl2_window);
++    IMG_Quit();
++    SDL_Quit();
+ }
+ 
+ #else
+@@ -287,6 +285,8 @@ void GraphicsSDL::ChangeFullScreen(bool fullscreen)
+ 
+ void GraphicsSDL::Close()
+ {
++    IMG_Quit();
++    SDL_Quit();
+ }
+ 
+ #endif

@@ -1,0 +1,13 @@
+diff --git a/src/common/gfx/gfxSDL.cpp b/src/common/gfx/gfxSDL.cpp
+index 6f9aeed..2335cd3 100644
+--- a/src/common/gfx/gfxSDL.cpp
++++ b/src/common/gfx/gfxSDL.cpp
+@@ -135,7 +135,7 @@ void GraphicsSDL::create_game_window(bool fullscreen)
+ #else
+         sdl2_renderer = SDL_CreateRenderer(sdl2_window, -1,
+ #endif
+-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
++            SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_PRESENTVSYNC);
+         if (!sdl2_renderer) {
+             fprintf(stderr, "[gfx] Couldn't create renderer: %s\n", SDL_GetError());
+             throw E_CREATE_RENDERER;
