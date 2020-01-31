@@ -14,7 +14,7 @@ rp_module_desc="DOS emulator"
 rp_module_help="ROM Extensions: .bat .com .exe .sh .conf\n\nCopy your DOS games to $romdir/pc"
 rp_module_licence="GPL2 https://sourceforge.net/p/dosbox/code-0/HEAD/tree/dosbox/trunk/COPYING"
 rp_module_section="opt"
-rp_module_flags="dispmanx !mali"
+rp_module_flags="dispmanx sdl1"
 
 function depends_dosbox() {
     local depends=(libsdl1.2-dev libsdl-net1.2-dev libsdl-sound1.2-dev libasound2-dev libpng-dev automake autoconf zlib1g-dev subversion "$@")
@@ -60,13 +60,14 @@ function install_dosbox() {
 }
 
 function configure_dosbox() {
+    local launcher_script="$md_inst/bin/dosbox.sh"
+    local start_script="$romdir/pc/+Start DOSBox.sh"
+
     if [[ "$md_id" == "dosbox-sdl2" ]]; then
         local def="0"
-        local launcher_name="+Start DOSBox-SDL2.sh"
         local needs_synth="0"
     else
         local def="1"
-        local launcher_name="+Start DOSBox.sh"
         # needs software synth for midi; limit to Pi for now
         if isPlatform "rpi"; then
             local needs_synth="1"
@@ -74,9 +75,14 @@ function configure_dosbox() {
     fi
 
     mkRomDir "pc"
-    rm -f "$romdir/pc/$launcher_name"
+    rm -f "$start_script"
     if [[ "$md_mode" == "install" ]]; then
-        cat > "$romdir/pc/$launcher_name" << _EOF_
+        cat > "$start_script" << _EOF_
+#!/bin/bash
+$rootdir/supplementary/runcommand/runcommand.sh 0 _SYS_ pc
+_EOF_
+
+        cat > "$launcher_script" << _EOF_
 #!/bin/bash
 
 [[ ! -n "\$(aconnect -o | grep -e TiMidity -e FluidSynth)" ]] && needs_synth="$needs_synth"
@@ -117,8 +123,8 @@ midi_synth start
 "$md_inst/bin/dosbox" "\${params[@]}"
 midi_synth stop
 _EOF_
-        chmod +x "$romdir/pc/$launcher_name"
-        chown $user:$user "$romdir/pc/$launcher_name"
+        chmod +x "$launcher_script" "$start_script"
+        chown $user:$user "$start_script"
 
         local config_path=$(su "$user" -c "\"$md_inst/bin/dosbox\" -printconf")
         if [[ -f "$config_path" ]]; then
@@ -141,6 +147,6 @@ _EOF_
 
     moveConfigDir "$home/.$md_id" "$md_conf_root/pc"
 
-    addEmulator "$def" "$md_id" "pc" "bash $romdir/pc/${launcher_name// /\\ } %ROM%"
+    addEmulator "$def" "$md_id" "pc" "bash ${launcher_script// /\\ } %ROM%"
     addSystem "pc"
 }
